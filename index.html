@@ -5,10 +5,23 @@
 </head>
 <body>
     <h1>TFL Word Checker</h1>
-    <form method="POST">
-        <label for="words">Enter words (comma-separated):</label>
-        <input type="text" id="words" name="words">
+    <form method="POST" enctype="multipart/form-data">
+        <label for="words_file">Upload words file:</label>
+        <input type="file" id="words_file" name="words_file">
         <button type="submit">Check</button>
     </form>
+
+    {% if found_words %}
+        <p>Found the following words in the TfL API response:</p>
+        <ul>
+            {% for word in found_words %}
+                <li>{{ word }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if error_message %}
+        <p>{{ error_message }}</p>
+    {% endif %}
 </body>
 </html>
