@@ -21,14 +21,13 @@ async function checkApiData() {
     const response = await fetch(API_URL);
     if (!response.ok) throw new Error("Error fetching API");
     const data = await response.json();
-    const rawData = JSON.stringify(data, null, 2); // Pretty print the API response
-
+    
     // Display raw API response in the <pre> element
-    document.getElementById("api-response").textContent = rawData;
+    document.getElementById("api-response").textContent = JSON.stringify(data, null, 2);
 
     // Regex to find words with context (1 word before, the word itself, 1 word after)
     const wordPattern = new RegExp(`(\\S+\\s+)?(${words.join("|")})(\\s+\\S+)?`, "gi");
-    const matches = [...rawData.matchAll(wordPattern)];
+    const matches = [...JSON.stringify(data).matchAll(wordPattern)];
 
     const resultsElement = document.getElementById("results");
     if (matches.length > 0) {
