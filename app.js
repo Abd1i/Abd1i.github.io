@@ -23,13 +23,21 @@ async function checkApiData() {
     if (!response.ok) throw new Error("Error fetching data");
     const data = await response.json();
 
-    const wordPattern = new RegExp("\\b(" + words.join("|") + ")\\b", "gi");
-    const matches = JSON.stringify(data).match(wordPattern);
+    const wordPattern = new RegExp(`(\\S+\\s+)?(${words.join("|")})(\\s+\\S+)?`, "gi"); // Regex to match word with one word before and after it
+    const jsonResponse = JSON.stringify(data);  // Convert the entire API response to a string
+    const matches = [...jsonResponse.matchAll(wordPattern)]; // Use matchAll to find all matches
 
     const resultsElement = document.getElementById("results");
-    resultsElement.innerHTML = matches
-      ? `<p>Found: <ul>${matches.map(word => `<li>${word}</li>`).join("")}</ul></p>`
-      : "No matching words found.";
+    if (matches.length > 0) {
+      // Display matches with context (before and after words)
+      resultsElement.innerHTML = `<p>Found the following matches:</p><ul>` + matches.map(match => {
+        const before = match[1] ? match[1].trim() : ""; // Word before the match
+        const after = match[3] ? match[3].trim() : ""; // Word after the match
+        return `<li>...${before} <strong>${match[2]}</strong> ${after}...</li>`;
+      }).join("") + `</ul>`;
+    } else {
+      resultsElement.textContent = "No matching words found.";
+    }
   } catch (error) {
     console.error("Error fetching data:", error);
     document.getElementById("results").textContent = "Error fetching API data.";
