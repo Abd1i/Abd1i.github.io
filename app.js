@@ -21,30 +21,23 @@ async function checkApiData() {
     const response = await fetch(API_URL);
     if (!response.ok) throw new Error("Error fetching API");
 
-    // Get raw text from the API response
-    const data = await response.text(); // Use .text() to get the raw response text
+    const data = await response.json(); // Get API response as JSON
 
-    // Display raw API response in the <pre> element
-    document.getElementById("api-response").textContent = data; // Display the raw text
+    // Extract the reason text from all lineStatuses
+    const reasons = data.map(line => 
+      line.lineStatuses.map(status => status.reason).join(" ")
+    ).join(" ");
 
-    // Regex to find words with context (1 word before, the word itself, 1 word after)
+    // Regex to find words in the reasons field
     const wordPattern = new RegExp(`(\\S+\\s+)?(${words.join("|")})(\\s+\\S+)?`, "gi");
-    const matches = [data.matchAll(wordPattern)];
+    const matches = [...reasons.matchAll(wordPattern)];
 
     const resultsElement = document.getElementById("results");
     if (matches.length > 0) {
       resultsElement.innerHTML = `<ul>` + matches.map(match => {
-        const before = match[1] ? match[1].trim() : ""; // Word before
-        const after = match[3] ? match[3].trim() : ""; // Word after
+        const before = match[1] ? match[1].trim() : "";
+        const after = match[3] ? match[3].trim() : "";
         return `<li>${before} <strong>${match[2]}</strong> ${after}</li>`;
       }).join("") + `</ul>`;
     } else {
-      resultsElement.textContent = "No matches found.";
-    }
-  } catch (error) {
-    console.error(error);
-    document.getElementById("results").textContent = "Error fetching data.";
-  }
-}
-
-loadWords();
+      resultsElement
