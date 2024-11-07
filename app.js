@@ -29,7 +29,7 @@ async function checkApiData() {
 
     // Regex to find words with context (1 word before, the word itself, 1 word after)
     const wordPattern = new RegExp(`(\\S+\\s+)?(${words.join("|")})(\\s+\\S+)?`, "gi");
-    const matches = [...data.matchAll(wordPattern)];
+    const matches = [data.matchAll(wordPattern)];
 
     const resultsElement = document.getElementById("results");
     if (matches.length > 0) {
