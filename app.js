@@ -36,7 +36,7 @@ async function checkApiData() {
       resultsElement.innerHTML = `<ul>` + matches.map(match => {
         const before = match[1] ? match[1].trim() : "";
         const after = match[3] ? match[3].trim() : "";
-        return `<li>...${before} <strong>${match[2]}</strong> ${after}...</li>`;
+        return `<li>${before} <strong>${match[2]}</strong> ${after}</li>`;
       }).join("") + `</ul>`;
     } else {
       resultsElement.textContent = "No matches found.";
