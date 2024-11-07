@@ -1,48 +1,38 @@
 const API_URL = "https://api.tfl.gov.uk/Line/Mode/tube/Status";
-let words = []; // Will store words from words.txt
+let words = [];
 
-// Load words from words.txt
 async function loadWords() {
   try {
     const response = await fetch("words.txt");
     if (!response.ok) throw new Error("Error fetching words file");
     const text = await response.text();
-    words = text.split("\n").map(word => word.trim()).filter(Boolean); // Split by new lines, trim, and filter empty words
+    words = text.split("\n").map(word => word.trim()).filter(Boolean);
     checkApiData();
   } catch (error) {
-    console.error("Error loading words:", error);
+    console.error(error);
     document.getElementById("results").textContent = "Error loading words file.";
   }
 }
 
 async function checkApiData() {
-  if (words.length === 0) return;
+  if (!words.length) return;
 
   try {
     const response = await fetch(API_URL);
-    if (!response.ok) throw new Error("Error fetching data");
-    const data = await response.json();
-
-    const wordPattern = new RegExp(`(\\S+\\s+)?(${words.join("|")})(\\s+\\S+)?`, "gi"); // Regex to match word with one word before and after it
-    const jsonResponse = JSON.stringify(data);  // Convert the entire API response to a string
-    const matches = [...jsonResponse.matchAll(wordPattern)]; // Use matchAll to find all matches
+    if (!response.ok) throw new Error("Error fetching API");
+    const data = JSON.stringify(await response.json());
+    
+    const wordPattern = new RegExp(`(\\S+\\s+)?(${words.join("|")})(\\s+\\S+)?`, "gi");
+    const matches = [...data.matchAll(wordPattern)];
 
     const resultsElement = document.getElementById("results");
-    if (matches.length > 0) {
-      // Display matches with context (before and after words)
-      resultsElement.innerHTML = `<p>Found the following matches:</p><ul>` + matches.map(match => {
-        const before = match[1] ? match[1].trim() : ""; // Word before the match
-        const after = match[3] ? match[3].trim() : ""; // Word after the match
-        return `<li>...${before} <strong>${match[2]}</strong> ${after}...</li>`;
-      }).join("") + `</ul>`;
-    } else {
-      resultsElement.textContent = "No matching words found.";
-    }
+    resultsElement.innerHTML = matches.length
+      ? `<ul>${matches.map(match => `<li>...${match[1] || ""} <strong>${match[2]}</strong> ${match[3] || ""}...</li>`).join("")}</ul>`
+      : "No matches found.";
   } catch (error) {
-    console.error("Error fetching data:", error);
-    document.getElementById("results").textContent = "Error fetching API data.";
+    console.error(error);
+    document.getElementById("results").textContent = "Error fetching data.";
   }
 }
 
-// Load words from the text file and then check API data
 loadWords();
