@@ -40,4 +40,16 @@ async function checkApiData() {
         return `<li>${before} <strong>${match[2]}</strong> ${after}</li>`;
       }).join("") + `</ul>`;
     } else {
-      resultsElement
+      resultsElement.textContent = "No matches found.";
+    }
+
+    // Display raw API response (for debugging)
+    document.getElementById("api-response").textContent = JSON.stringify(data, null, 2);
+
+  } catch (error) {
+    console.error(error);
+    document.getElementById("results").textContent = "Error fetching data.";
+  }
+}
+
+loadWords();
