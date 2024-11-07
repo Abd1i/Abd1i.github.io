@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, flash
+from flask import Flask, render_template
 import requests
 import re
 
@@ -7,13 +7,17 @@ app = Flask(__name__)
 # Replace with your desired TfL API endpoint
 API_URL = "https://api.tfl.gov.uk/Line/Mode/tube/Status"
 
-def check_api_response(api_url, words_file):
+# Read words from the words.txt file
+with open('words.txt', 'r') as f:
+    words = f.read().splitlines()
+
+def check_api_response(api_url, words):
     """
-    Checks an API response for words from a given file.
+    Checks an API response for words from a given list.
 
     Args:
         api_url: The URL of the API endpoint.
-        words_file: The uploaded words file.
+        words: A list of words to check.
 
     Returns:
         A list of words found in the API response.
@@ -25,9 +29,6 @@ def check_api_response(api_url, words_file):
     except requests.exceptions.RequestException as e:
         return None, "Error fetching data from TfL API."
 
-    # Read words from the file
-    words = words_file.read().decode('utf-8').splitlines()
-
     # Create regular expression pattern to match any of the words
     word_pattern = r'\b(' + '|'.join(words) + r')\b'
 
@@ -37,17 +38,9 @@ def check_api_response(api_url, words_file):
     return matches, None
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 def index():
-    found_words, error_message = None, None
-
-    if request.method == 'POST':
-        words_file = request.files['words_file']
-
-        if words_file and words_file.filename.endswith('.txt'):
-            found_words, error_message = check_api_response(API_URL, words_file)
-        else:
-            error_message = "Please upload a valid text file."
+    found_words, error_message = check_api_response(API_URL, words)
 
     return render_template('index.html', found_words=found_words, error_message=error_message)
 
