@@ -34,8 +34,8 @@ async function checkApiData() {
     const resultsElement = document.getElementById("results");
     if (matches.length > 0) {
       resultsElement.innerHTML = `<ul>` + matches.map(match => {
-        const before = match[1] ? match[1].trim() : "";
-        const after = match[3] ? match[3].trim() : "";
+        const before = match[1] ? match[1].trim() : ""; // Word before
+        const after = match[3] ? match[3].trim() : ""; // Word after
         return `<li>${before} <strong>${match[2]}</strong> ${after}</li>`;
       }).join("") + `</ul>`;
     } else {
